@@ -1,0 +1,81 @@
+{% extends 'mainapp/base.html' %}
+
+{% load static %}
+
+{% load i18n %}
+
+{% block content %}
+{% language 'ru' %}
+<div class="container_orders">
+    <h1 id="yes" align="center">Мои заказы</h1>
+    <p align="center">Список ваших заказов</p>
+    <hr>
+        <div id="catalog_orders">
+            <table id="orders_table" width="100%" class="table-main" style="border: 4px double gray">
+                {% for order in orders %}
+                    <tr onclick="window.location.href='/order/{{order.id}}'"><td width="12%">Заказ№${{order.id}}<p>[{{order.order_date}}]</p></td>
+                    <td width="13%">{{order.order_state.order_state_name}}</td>
+                    <td width="13%">{{order.locality.locality_name}} - {{order.order_address}}</br>{{order.payment_type.payment_type_name}}</td>
+                    <td width="13%">{{order.contact_name}} {{order.contact_number}}</td>
+                    <!-- <td width="13%">{{order.addit_wishes}}</td> -->
+                    <td width="13%">
+                        <ul>
+                        {% for watch in order.split_watches_list %}
+                            <li>{{watch}}</li>
+                        {% endfor %}
+                        </ul>
+                    </td>
+                    <!-- <td width="13%"><input type="submit" value="Подробнее"></td></tr>    -->
+                {% endfor %}
+            </table>
+        </div>
+    <hr>
+    <br/>
+</div>
+
+<!-- <script>
+    var generated_csrf_token = "{{ csrf_token }}";
+    var id_user = "{{user.id}}"
+    var token = "{{token}}".split(" ")[0];
+
+    function getUserOrdersGet() {
+        fetch("http://localhost:8000/Orders/my_orders/", {
+            method: "GET",
+            headers: {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "Authorization": token,
+                "X-CSRFToken": generated_csrf_token
+            }
+        }).then(result => result.json())
+            .then(result => {
+                for(order in result){
+                    let tr = document.createElement('tr');
+                    
+                    let html_text = `<td width="12%">Заказ№${result[order]['id'].toString()}<p>[${result[order]['order_date'].toString()}]</p></td>`+
+                    `<td width="13%">${result[order]['username'].toString()}</td>`+
+                    `<td width="13%">${result[order]['order_state_name'].toString()}</td>`+
+                    `<td width="13%">${result[order]['order_address'].toString()}</td>`+
+                    `<td width="13%">${result[order]['contact_name'].toString()} ${result[order]['contact_number'].toString()}</td>`+   
+                    `<td width="13%">${result[order]['addit_wishes'].toString()}</td>`;
+                    if(result[order]['orderhasproduct_set'].length > 0){
+                        html_text += `<td width="25%"><ul>`;
+                        for(watch in result[order]['orderhasproduct_set']){
+                            html_text += `<li>${result[order]['orderhasproduct_set'][watch]['product']['model_name'].toString()}`+ 
+                                `(${result[order]['orderhasproduct_set'][watch]['product']['model_cost'].toString()})`+
+                                ` x ${result[order]['orderhasproduct_set'][watch]['quantity'].toString()}</li>`;
+                        }
+                        html_text += `</ul></td>`;
+                    }
+                    tr.innerHTML = html_text;
+
+                    document.getElementById("orders_table").append(tr);
+                }
+            });      
+
+    }
+
+    
+</script> -->
+{% endlanguage %}
+{% endblock %}

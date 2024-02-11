@@ -1,0 +1,84 @@
+{% extends 'mainapp/base.html' %}
+
+{% load static %}
+
+{% load i18n %}
+
+{% block content %}
+{% language 'ru' %}
+<div class="container_order">
+    {% if user.is_staff %}
+        <h1 id="yes">Изменение информации заказа</h1>
+        <p>Введите новые данные для заказа №{{order_id}}</p>
+    {% else %}
+        <h1 id="yes">Страница заказа</h1>
+        <p>Информация о заказе №{{order_id}}</p>
+    {% endif %}
+    <hr>
+    <input class="order_content_tablet" style="font-size: 20px; height: 40px;" type="button" value="Состав заказа" />
+    <div class="order_content_block" style="background-color: #f5f5f5;;">
+        <table width="100%">
+            {% for watch in watches %}
+            <tr><td width="20%" align="center" border="1"><img border="1" class="img_cart" height = "70" width="70" src="{{MEDIA_URL}}{{watch.image}}" alt="{{watch.image}}"></img></td>
+            <td width="60%" align="center"><a class="href_cart" href="/watch/{{watch.model_id}}"><h4 align="center">{{watch.model_name}} (№{{watch.model_id}})</h4><span align="center" style="display:block; margin-right:42px;"><em>{{watch.brand_name}}</em></span></a></td>
+            <!-- <td width="37%"><div class="desc_overflow">{{watch.model_description}}</div></td> -->
+            <td width="20%">
+                <div style="margin-right:auto; margin-left:auto; width:74%">
+                <h4>
+                <p><b>x {{watch.quantity}}</b></p>
+                </div>
+            </h4>
+            </td>
+            {% endfor %}
+        </table>
+    </div>
+    <form action="" method="post"> {% csrf_token %}
+        {% for field in form %}
+        {% if field.name == 'contact_name' or field.name == 'locality' %}
+            <table width="100%">
+                <tr><td width="27%">
+                    {{field.errors}}
+                    {{ field.label_tag }}</b>{{ field }}
+                </td>
+        {% elif field.name == 'contact_number' or field.name == 'payment_type' %}
+            <td width="27%">
+                {{field.errors}}
+                {{ field.label_tag }}</b>{{ field }}
+            </td></tr></table>
+        {% else %}
+            {{field.errors}}
+            {{ field.label_tag }}</b>{{ field }}
+        {% endif %}
+        {% endfor %}
+        <!-- <div class="drop_block close">
+            <input class="drop_heading" type="button" value="Доп. характеристики" />
+            <div class="drop_content">
+              <ul>
+              </ul>
+            </div>
+        </div> -->
+        {% if user.is_staff %}
+        <hr>
+        <br/>
+        <input type="submit" value="Изменить">
+        {% endif %}
+    </form>
+<script>
+    // var drop_heading = document.getElementsByClassName('drop_heading');
+    // var drop_block = document.getElementsByClassName('drop_block');
+    // for (i = 0; i < drop_heading.length; i++) {
+    //     drop_heading[i].addEventListener('click', toggle_block, false);
+    // }
+    // function toggle_block() {
+    //     var curr_class = this.parentNode.className;
+    //     if (curr_class == 'drop_block close') {
+    //         this.parentNode.className = 'drop_block open';
+    //     }
+    //     else {
+    //         this.parentNode.className = 'drop_block close';
+    //     }
+    // }
+</script>
+</div>
+{% endlanguage %}
+{% endblock %}

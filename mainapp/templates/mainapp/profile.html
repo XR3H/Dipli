@@ -1,0 +1,59 @@
+{% extends 'mainapp/base.html' %}
+
+{% load static %}
+
+{% load i18n %}
+
+{% block content %}
+{% language 'ru' %}
+<div class="container">
+    <h1 id="yes" align="center">Данные пользователя</h1>
+    <hr>
+
+        {{form.as_p}}
+        <!-- <label for="username"><b>Имя пользователя</b></label>
+        <input readonly type="text" name="username" id="username">
+
+        <label for="email"><b>Email</b></label>
+        <input readonly type="text" name="email" id="email">
+
+        <label for="first_name"><b>Имя</b></label>
+        <input readonly type="text" name="first_name" id="first_name">
+
+        <label for="last_name"><b>Фамилия</b></label>
+        <input readonly type="text" name="last_name" id="last_name"> -->
+
+    <hr>
+
+    <br/>
+    <input type="submit" value="Сменить пароль" onclick="window.location.href='/change_password/'">
+</div>
+
+<!-- <script>
+    var generated_csrf_token = "{{ csrf_token }}";
+
+    window.onload = function userPost() {
+        var token = "{{token}}".split(" ")[0];
+        fetch("http://localhost:8000/UserProfile/user/", {
+            method: "GET",
+            headers: {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "Authorization": token
+            }
+        }).then(result => result.json())
+            .then(result => {
+                for (key in result) {
+                    if(result[key] == ''){
+                        document.getElementById(key).value = "Не указано";
+                    }
+                    else{
+                        document.getElementById(key).value = result[key];
+                    }
+                }
+            });
+
+    }
+</script> -->
+{% endlanguage %}
+{% endblock %}

@@ -1,0 +1,13 @@
+{% extends 'mainapp/base.html' %}
+
+
+
+{% block content %}
+    <div align="middle">
+      {% if user.is_authenticated %}
+        <h1 style="font-family: 'Montserrat';">Добро пожаловать, {{user.username}}!</h1>
+      {% else %}
+        <h1 style="font-family: 'Montserrat';">Добро пожаловать!</h1>
+      {% endif %}
+    </div>
+{% endblock %}

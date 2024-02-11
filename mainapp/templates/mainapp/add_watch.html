@@ -1,0 +1,42 @@
+{% extends 'mainapp/base.html' %}
+
+{% load static %}
+
+{% load i18n %}
+
+{% block content %}
+{% language 'ru' %}
+<div class="container">
+    <h1 id="yes">Добавление товара</h1>
+    <p>Введите данные модели</p>
+    <hr>
+        <form action="" method="post" enctype="multipart/form-data"> {% csrf_token %}
+        {% for field in form  %}
+            {% if field.name == 'model_cost' or field.name == 'waterproof_level' or field.name == 'mechanism_type' or field.name == 'glass_type' %}
+                <table width="100%">
+                    <tr><td width="27%">
+                        {{field.errors}}
+                        {{ field.label_tag }}</b>{{ field }}
+                    </td>
+            {% elif field.name == 'case_width' %}
+                <td width="27%">
+                    {{field.errors}}
+                    {{ field.label_tag }}</b>{{ field }}
+                </td>
+            {% elif field.name == 'case_height' or field.name == 'case_band' or field.name == 'strap_type' or field.name == 'current_amount' %}
+                <td width="27%">
+                    {{field.errors}}
+                    {{ field.label_tag }}</b>{{ field }}
+                </td></tr></table>
+            {% elif field.name == 'model_features' %}
+                {{field}}
+            {% else %}
+                {{field.errors}}
+                {{ field.label_tag }}</b>{{ field }}
+            {% endif %}
+        {% endfor %}
+        </br></br><hr><br><input type="submit" value="Добавить">
+        </form>
+</div>
+{% endlanguage %}
+{% endblock %}

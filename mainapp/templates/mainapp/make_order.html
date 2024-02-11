@@ -1,0 +1,37 @@
+{% extends 'mainapp/base.html' %}
+
+{% load static %}
+
+{% load i18n %}
+
+{% block content %}
+{% language 'ru' %}
+<div class="container">
+    <h1 id="yes">Оформление заказа</h1>
+    <p>Введите данные заказа</p>
+    <hr>
+    <form action="" method="post"> {% csrf_token %}
+        {% for field in form %}
+        {% if field.name == 'contact_name' or field.name == 'locality' %}
+            <table width="100%">
+                <tr><td width="27%">
+                    {{field.errors}}
+                    {{ field.label_tag }}</b>{{ field }}
+                </td>
+        {% elif field.name == 'contact_number' or field.name == 'payment_type' %}
+            <td width="27%">
+                {{field.errors}}
+                {{ field.label_tag }}</b>{{ field }}
+            </td></tr></table>
+        {% else %}
+            {{field.errors}}
+            {{ field.label_tag }}</b>{{ field }}
+        {% endif %}
+        {% endfor %}
+        <hr>
+        <br/>
+        <input type="submit" value="Оформить">
+    </form>
+</div>
+{% endlanguage %}
+{% endblock %}

@@ -1,0 +1,388 @@
+{% extends 'mainapp/base.html' %}
+
+{% load i18n %}
+
+{% block content %}
+{% language 'ru' %}
+<div class="container_catalog">
+    <h1 id="yes" align="center">Каталог</h1>
+    <hr>
+        <br>
+        <br>
+        <br>
+        <div id="catalog_content" width="100%">
+
+            {% for watch in watches %}
+            <!-- <div><h1 style="font-size: 45px">{{watch.model_name}} ({{watch.brand_name}}, {{watch.gender}})</h1> 
+                <img border="1" style="display:block; margin-left:30px; margin-right:auto;" height = "470" width="470" src="{{MEDIA_URL}}{{watch.image}}" alt="{{watch.image}}"></img>
+                </br>
+                <strong>Цена:</strong> {{watch.model_cost}} грн</h1>
+                <h3>На складе:{{watch.current_amount}}</h3>
+                <table width="100%"><tr>
+                <td width="30%"><strong>Категория:</strong>{{watch.category_name}}<br/>
+                <strong>Описание:</strong>{{watch.model_description}}</td>
+                <td align="center"><strong>Ширина корпуса:</strong>{{watch.case_width}}<br/>
+                <strong>Высота корпуса:</strong>{{watch.case_depth}}<br/>
+                <strong>Водонепроницаемость:</strong>{{watch.waterproof_level}} м<br/>
+                <strong>Вес:</strong>{{watch.weight}}</td>
+                <td align="center"><strong>Тип механизма:</strong>{{watch.mechanism_name}}<br/>
+                <strong>Тип корпуса:</strong>{{watch.case_type_name}}<br/>
+                <strong>Тип стекла:</strong>{{watch.glass_type_name}}<br/>
+                <strong>Тип браслета:</strong>{{watch.strap_type_name}}<br/>
+                <strong>Подсветка:</strong>{{watch.backlight|yesno:'Есть,Нет'}}</td></tr>
+                <tr><td colspan="3" align="center"><div style="width:100%;">
+                    <form action="/add/{{watch.id}}/" method="POST"> {% csrf_token %}
+                    <input type="submit" name="{{watch.id}}" value="Добавить в корзину">
+                    {% for form in forms %}
+                        {% if forloop.counter0 == forloop.parentloop.counter0 %}
+                            {{form.as_p}}</div></td></tr>
+                        {% endif %}
+                    {% endfor %}
+                    </form>
+                </tr></table><hr/><div> -->
+                <div>
+                        <div action="/add/{{watch.id}}/" method="POST" class="formhorizozntal">
+                        <img class="img-thumbnail-catalog" style="height: 16vw; width: 16vw" src="{{MEDIA_URL}}{{watch.image}}" alt="{{watch.image}}" />
+                        {% if watch.is_new %}
+                                <img style="position: absolute; margin-left: -6vw; margin-top: 0.2vw; height: 6vw; width: 6vw" src="{{MEDIA_URL}}images/watch_new_icon.png" />
+                        {% endif %}
+                        <h2>{{watch.model_name}}</h2>
+                        <p><h4>Бренд: {{watch.brand.brand_name}}</h4></p>
+                        <div id="flex_catalog">
+                        <div><p>Цена: {{watch.model_cost}}</p></div>
+                        <!-- <p><div class="desc_overflow">{{watch.model_description}}</div></p> -->
+                        <div><p>На складе:{{watch.current_amount}}</p></div>
+                        </div>
+                        <p><input class="btn btn-success" type="button" value="Подробнее" onclick="window.location.href='/watch/{{watch.id}}'" /></p>
+                        </div>
+
+                </div>
+
+            {% endfor %}
+        </div>
+
+        <br>
+        {% if watches.has_other_pages %}
+            <br>
+            <nav class="list-pages">
+                <ul>
+                {% if watches.has_previous %}
+                    <li class="page-num"><a href="?page={{ watches.previous_page_number }}"> &lt; </a></li>
+                {% endif %}
+                {% for page in watches.paginator.page_range %}
+                {% if watches.number == page %}
+                    <li class="page-num-selected"><a href="?page={{ page }}">{{ page }}</a></li>
+                {% elif page >= watches.number|add:-2 and page <= watches.number|add:2 %}
+                    <li class="page-num"><a href="?page={{ page }}">{{ page }}</a></li>
+                {% endif %}
+                {% endfor %}
+                {% if watches.has_next %}
+                    <li class="page-num"><a href="?page={{ watches.nex_page_number }}"> &gt; </a></li>
+                {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        
+            <br>
+
+        <div id="recomend_area" align="center">
+        <br>
+        <br>
+        <hr/>
+        <br>
+        <!-- {% for a in info|json_script:"hello-data" %}
+            <p>{{a}}</p>
+        {% endfor %} -->
+        <script id="hello-data" type="application/json">{"hello": "world"}</script>
+        <h2>Актуальные товары</h2>
+        <div id="recomend_block" width="100%">
+            <input id="rating" type="button" value="Топ по рейтингу" onclick="changeChart(this.id)"/>
+            <input id="chart" style="border-left: none;" type="button" value="В виде графика" onclick="changeView(this.id)"/>
+            <div class="list-group-item list-group-item-action gap-3 py-3" id="recoment_catalog_content">
+                <div id="chart_content" style="display: none;">
+                    <canvas id="chart_sales"></canvas>
+                    <canvas id="chart_rating" style="display: none;"></canvas>
+                </div>
+                <div id="list_content">
+                        <div class="list_wrapper" id="wrapper_sales">
+                            <input class="arrow-left" type="button" value="<"/>
+                            <div class="stat_item" style="" id="list_sales"></div>
+                            <input class="arrow-right" type="button" value=">"/>
+                        </div>
+                        <div class="list_wrapper" id="wrapper_rating" style="display: none;">
+                            <input class="arrow-left" type="button" value="<"/>
+                            <div class="stat_item" id="list_rating"></div>    
+                            <input class="arrow-right" type="button" value=">"/>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+        </div>
+
+
+    <br/>
+      
+      <!-- <button id="go-left">&laquo;</button> <button id="go-right">&raquo;</button> -->
+
+
+
+</div>
+<script src="/static/js/jquery-3.6.0.js"></script>
+<script>
+    var generated_csrf_token = "{{ csrf_token }}"
+    $('.arrow-left').each(function(){
+        $(this).click(function(){
+            // alert(1);
+            var line = $(this).parent().children('div.stat_item');
+            var current = line.children().last();
+            current.insertBefore(line.children().first());
+        });
+    })
+    $('.arrow-right').each(function(){
+        $(this).click(function(){
+            // alert(1);
+            var line = $(this).parent().children('div.stat_item');
+            var current = line.children().first();
+            current.insertAfter(line.children().last());
+        });
+    })
+    // var opt = {
+    //     'sales':{
+    //         'label': 'Кол-во продаж',
+    //         ''
+    //     }, 
+    //     'rating':{}
+    // }
+    
+    // function changeChart(type){
+    //     var selected_chart = document.getElementById('chart_' + type);
+    //     if(selected_chart.style.display=='none'){
+    //         var an_charts = document.getElementById("recoment_catalog_content").querySelectorAll("canvas");
+    //         an_charts.forEach(function (chart) {
+    //             chart.style.display='none';
+    //         });
+    //         selected_chart.style.display='block';
+    //     }
+    // }
+
+    function changeChart(type){
+        var button = document.getElementById(type);
+        var selected_chart = document.getElementById('chart_' + type);
+        var selected_list = document.getElementById('wrapper_' + type);
+        if(selected_chart.style.display=='none'){
+            var an_charts = document.getElementById("chart_content").querySelectorAll("canvas");
+            an_charts.forEach(function (chart) {
+                chart.style.display='none';
+            });
+            selected_chart.style.display='block';
+        }
+        if(selected_list.style.display=='none'){
+            var an_lists = document.getElementById("list_content").querySelectorAll("div.list_wrapper");
+            an_lists.forEach(function (list) {
+                list.style.display='none';
+            });
+            selected_list.style.display='flex';
+        }
+        if(type=="sales") {
+            button.id = "rating";
+            button.value = "Топ по рейтингу";
+        }
+        else if (type=="rating") {
+            button.id = "sales";
+            button.value = "Топ по продажам за месяц";
+        }
+    }
+
+    function changeView(type){
+        var button = document.getElementById(type);
+        var selected_view = document.getElementById(type + '_content');
+        if(selected_view.style.display=='none'){
+            var an_views = document.getElementById("recoment_catalog_content").querySelectorAll("#chart_content, #list_content");
+            an_views.forEach(function (view) {
+                view.style.display='none';
+            });
+            selected_view.style.display= type=='list'?'flex':'block';
+        }
+        document.getElementById("recoment_catalog_content").scrollIntoView({block: "center", behavior: "smooth"})
+        if(type=="list") {
+            button.id = "chart";
+            button.value = "В виде графика";
+        }
+        else if (type=="chart") {
+            button.id = "list";
+            button.value = "В виде перечня";
+        }
+    }
+
+    window.onload = function getInfo() {
+      var my_list = {{ info|safe }};
+      for (chart in my_list) {
+        //alert(chart);
+        var item_container = document.getElementById("list_"+chart);
+        //alert(chart)
+        let labels = [];
+        let sales = [];
+        let avatars = [];
+        let indexes = [];
+        for(watch in my_list[chart]){
+            let item = document.createElement('div');
+            item.innerHTML = `<img class="img-thumbnail-info" height="200" width="200" src="{{MEDIA_URL}}${my_list[chart][watch]['image']}" alt="${my_list[chart][watch]['image']}" />` +
+                        `<h4>${my_list[chart][watch]['model_name']}</h4>`+
+                        `<p><h4>Бренд: ${my_list[chart][watch]['brand_name']}</h4></p>`
+                        // `<div id="flex_catalog">`+
+                        // `<div><p>Цена: ${my_list[chart][watch]['model_cost']}</p></div>`+
+                        // `<div><p>На складе:{my_list[chart][watch]['model_name']}</p></div>`+
+                        // `</div>`
+            item_container.append(item);
+
+            labels.push(my_list[chart][watch]['model_name']);
+            sales.push(my_list[chart][watch]['sales']);
+            indexes.push(my_list[chart][watch]['id'])
+            //alert(my_list[chart][watch]['sales']);
+            let temp_avatar = new Image();
+            //temp_avatar.src = 'https://st.depositphotos.com/1001311/3432/i/950/depositphotos_34329113-stock-photo-golden-matt-letter-c-jewellery.jpg';
+            temp_avatar.src = '{{MEDIA_URL}}' + my_list[chart][watch]['image'];
+            avatars.push(temp_avatar);
+        }
+        max_sale = Math.max.apply(null, sales);
+        min_sale = Math.min.apply(null, sales);
+
+      
+        const data = {
+          labels: labels,
+          indexes: indexes,
+          datasets: [{
+            label: chart=='sales'?'Кол-во продаж':'Рейтинг оценок',
+            backgroundColor: 'rgb(62, 158, 62)',
+            borderColor: 'rgb(0, 0, 0)',
+            data: sales,
+          }]
+        };
+
+        const barAvatar = {
+            id: 'barAvatar',
+            afterDatasetDraw(chart, args, options){
+                const {ctx, chartArea: {top, bottom, left, right, width, height},
+                       scales: {x, y} } = chart;
+                ctx.save();
+
+                for (let i = 0; i < sales.length; i++) {
+                    //alert(avatars[i]);
+
+                  ctx.drawImage(avatars[i], x.getPixelForValue(i)-54/2, y.getPixelForValue(sales[i])-54-2, 54, 54);
+                }
+            }
+        }
+
+        const config2 = {
+        type: 'bar',
+        data: data,
+        options: {
+          scales: {
+            y: chart=='sales'?{beginAtZero: true, max:  max_sale + max_sale%2+ 2}: {beginAtZero: true, max:  (Math.ceil((max_sale+0.2)*10)/10) + (Math.ceil((max_sale+0.2)*10)%2)/10, min: (min_sale-0.2) - (min_sale-0.2)%0.2, tick: 0.2}
+          }
+        },
+        plugins: [barAvatar]
+        };
+
+        const ctx = document.getElementById('chart_'+chart);
+        const myChart = new Chart(
+        ctx,
+        config2);
+        ctx.onclick = clickHandler;
+        if(chart){
+            //alert('define');
+            globalThis.myChart2 = myChart;
+        }
+        //alert(0);
+      }
+
+      function clickHandler(click){
+          //alert('siski');
+          const points = myChart2.getElementsAtEventForMode(click, 'nearest', {intersect: true}, true);
+          //alert('piski');
+
+          if(points.length){
+              const firstPoint = points[0];
+              const value = myChart2.data.indexes[firstPoint.index];
+              //alert(value);
+              window.location.href=`/watch/${value}`;
+          }
+      }
+    }
+  
+    
+
+    
+</script>
+<!-- <script>
+    var generated_csrf_token = "{{ csrf_token }}";
+    var is_manager = "{{user.is_staff}}"
+    var is_authenticated = "{{user.is_authenticated}}"
+    var token = "{{token}}".split(" ")[0];
+
+    window.onload = function getWatchesGet() {
+        fetch("http://localhost:8000/Watches/catalog/", {
+            method: "GET",
+            headers: {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "X-CSRFToken": generated_csrf_token
+            }
+        }).then(result => result.json())
+            .then(result => {
+                for (watch in result) {
+                    let div = document.createElement('div');
+                    div.className = "watch";
+                    let innerCont = `<div><h1 style="font-size: 45px">${result[watch]['model_name'].toString()} (${result[watch]['brand_name'].toString()}, ${result[watch]['gender'].toString()})</h1>`+ 
+                        `<strong>Цена:</strong> ${result[watch]['model_cost'].toString()} грн</h1>` +
+                        `<h3>На складе:${result[watch]['current_amount'].toString()}</h3>`+
+                        `<table width="100%"><tr>`+
+                        `<td width="30%"><strong>Категория:</strong>${result[watch]['category_name'].toString()}<br/>`+
+                        `<strong>Описание:</strong>${result[watch]['model_description'].toString()}</td>`+
+                        `<td align="center"><strong>Ширина корпуса:</strong>${result[watch]['case_width'].toString()}<br/>`+
+                        `<strong>Высота корпуса:</strong>${result[watch]['case_depth'].toString()}<br/>`+
+                        `<strong>Водонепроницаемость:</strong>${result[watch]['waterproof_level'].toString()} м<br/>`+
+                        `<strong>Вес:</strong>${result[watch]['weight'].toString()}</td>`+
+                        `<td align="center"><strong>Тип механизма:</strong>${result[watch]['mechanism_name'].toString()}<br/>`+
+                        `<strong>Тип корпуса:</strong>${result[watch]['case_type_name'].toString()}<br/>`+
+                        `<strong>Тип стекла:</strong>${result[watch]['glass_type_name'].toString()}<br/>`+
+                        `<strong>Тип браслета:</strong>${result[watch]['strap_type_name'].toString()}<br/>`+
+                        `<strong>Подсветка:</strong>${result[watch]['backlight'].toString() ? 'Есть' : 'Нет'}</td></tr>`;
+                        if(is_manager=='True' && is_authenticated=='True'){
+                            innerCont += `<tr><td colspan="3"><a href="http://localhost:8000/change_watch/${result[watch]['id']}"><input type="submit" value="Изменить" style="width:100%;" ></a></td></tr>`;
+                        }
+                        else if (is_authenticated=='True'){
+                            innerCont += `<tr><td colspan="3" align="center"><div style="width:100%;"><input type="submit" name="${result[watch]['id']}" value="Добавить в корзину" onclick="addToCartPost(this.name)">`+
+                            `<input type="number" id="${result[watch]['id']}" step="1" min="0" max="300" value="0" placeholder="0" required></div></td></tr>`;
+                        }
+                        innerCont += `</tr></table><hr/><div>`;
+                    div.innerHTML = innerCont;
+                    document.getElementById("catalog_content").append(div);
+                }
+            });      
+
+    }
+
+    function addToCartPost(i) {
+        watch_quantity = document.getElementById(i).value;
+        fetch("http://localhost:8000/Cart/add_to_cart/", {
+          method: "POST",
+          body: JSON.stringify({watch_id: i, quantity: watch_quantity}),
+          headers: {
+              "Accept": "application/json",
+              "Content-Type": "application/json",
+              "Authorization": token,
+              "X-CSRFToken": generated_csrf_token
+          }
+        }).then(result => result.json())
+          .then(result => {
+              document.getElementById("yes").innerHTML = JSON.stringify(result);
+          });
+    };
+    
+</script> -->
+{% endlanguage %}
+{% endblock %}

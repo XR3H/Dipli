@@ -1,0 +1,266 @@
+{% extends 'mainapp/base.html' %}
+
+{% load static %}
+
+{% load i18n %}
+
+{% block content %}
+{% language 'ru' %}
+<div class="container_cart">
+    <h1 id="yes" align="center">Корзина</h1>
+    <p align="center">Список товаров на покупку</p>
+    <hr>
+    <br>
+    <div id="cart_panel">
+        <div><h3 style="width:270px"><b>Общая стоимость:</b> {{total_cost}} грн</h3></div>
+        <div>
+            <input type="submit" value="Оформить заказ" onclick="window.location.href='/make_order/'">
+        </div>
+        <div>
+            <form action="/clearCart/" method="POST"> {% csrf_token %}
+                <!-- <input type="text" id="fname" name="fname"><br><br> -->
+                <input type="submit" value="Очистить корзину">
+            </form>
+        </div>
+    </div>
+    <br>
+
+    </br>
+        <div>
+            <table id="cart_table" width="100%" class="table-main" style="border: 4px double gray">
+                {% for watch in watches %}
+                <tr><td width="8%" align="center" border="1"><img border="1" class="img_cart" height = "140" width="140" src="{{MEDIA_URL}}{{watch.image}}" alt="{{watch.image}}"></img></td>
+                <td width="17%" align="center"><a class="href_cart" href="/watch/{{watch.model_id}}"><h3 align="center">{{watch.model_name}} (№{{watch.model_id}})</h3>
+                    <span align="center" style="display:block; margin-right:42px;"><em>{{watch.brand_name}}</em></span></a></td>
+                <!-- <td width="37%"><div class="desc_overflow">{{watch.model_description}}</div></td> -->
+                <td width="26%">
+                    <div style="margin-right:auto; margin-left:auto; width:74%">
+                    <h4>
+                    <p><b>Цена товара</b> - {{watch.model_cost}} грн</p>
+                    <p><b>Общая стоимость</b> - {{watch.total}} грн</p>
+                    </div>
+                </h4>
+                </td>
+                <td width="24%">
+                    <div style="display: flex; flex-direction: column; justify-content: space-between; width:60%; margin-left: auto; margin-right: auto;">
+                        <div style="display:flex">
+                            <input type="number" style="margin: 5px 0 7px 0; text-align:center;" id="{{watch.model_id}}" step="1" min="0" max="300" value="{{watch.quantity}}" placeholder="0" required>
+                        </div>
+                        <div style="display:flex">
+                            <input type="submit" style="font-size: 18px; height:40px" value="Изменить количество" onclick="updateItemPatch()">
+                        </div>
+                    </div>
+                </td>
+                <td width="9%">
+                    <div style="display:block; margin-left: auto; margin-right: auto">
+                    <form action="/delete_item/{{watch.model_id}}/" method="POST"> {% csrf_token %} 
+                        <textarea readonly name="order_id" style="display: none">{{order.id}}</textarea>
+                        <input type="image" width="80" height="80" src="{{MEDIA_URL}}images/delete1.png" border="0" alt="{{MEDIA_URL}}images/delete1.png" />
+                        <!-- <input type="submit" value="X"> -->
+                    </form>
+                    </div>
+                </td>
+                {% endfor %}
+            </table>
+        </div>
+    <br/>
+    <br/>
+    <hr>
+    <br/>
+
+    <div id="statistics_area">
+    <h2>Статистическое сравнение</h2>
+    <div id="recomend_block">
+        <div id="choice_panel"></div>
+        <!-- <input id="rating" type="button" value="Топ по рейтингу" onclick="changeChart(this.id)"/>
+        <input id="list" style="border-left: none;" type="button" value="В виде графика" onclick="changeView(this.id)"/> -->
+        <div class="list-group-item list-group-item-action gap-3 py-3" id="watch_stat_info">
+            <!-- <canvas id="chart_cost_categ"></canvas>
+            <canvas id="chart_rates"></canvas> -->
+            <!-- style="display: none;" -->
+                
+            </div>
+        </div>
+    </div>
+    </div>
+
+</div>
+
+<script>
+    var generated_csrf_token = "{{ csrf_token }}";
+    var params = {
+        'compare_sales': ['amount', 'По продажам'],
+        'compare_rating': ['avg_rate', 'По рейтингу']
+        // 'rates': ['val', 'count', 'Кол-во оценок']
+    };
+
+    var colors_choices = [
+        'green',
+        'blue',
+        'orange',
+        'purple',
+        'yellow',
+        'red',
+        'pink'
+    ];
+
+    function changeChart(type){
+        // alert(type);
+        var selected_chart = document.getElementById('chart_' + type);
+        if(selected_chart.style.display=='none'){
+            var an_charts = document.getElementById("watch_stat_info").querySelectorAll("canvas");
+            an_charts.forEach(function (chart) {
+                chart.style.display='none';
+            });
+            selected_chart.style.display='block';
+        }
+    }
+
+    window.onload = function getInfo() {
+      var info_dict = {{ info|safe }};
+      var is_first_flag = true;
+      for (chart in info_dict) {
+        //alert(chart);
+        // alert(0);
+        var item_container = document.getElementById("watch_stat_info");
+        let chart_canvas = document.createElement('canvas');
+        chart_canvas.id = "chart_" + chart;
+        if(is_first_flag) is_first_flag = false;
+        else chart_canvas.style.display = "none";
+        item_container.append(chart_canvas);
+        //var item_container = document.getElementById("list_"+chart);
+        //alert(chart)
+        let labels = [];
+        let values = [];
+        let colors = [];
+        let dataset_list = [];
+        
+        let avatars = [];
+        //let indexes = [];
+        let keys = Object.keys(info_dict[chart]);
+        for(i in info_dict[chart]){
+            // alert(keys.indexOf(i));
+            let watch_color = colors_choices[keys.indexOf(i)];
+            let temp_dataset = {
+                label: i,
+                backgroundColor: watch_color,
+                borderColor: watch_color,
+                data: [],
+                tension: 0.1
+            };
+            for(date in info_dict[chart][i]){
+                if(i==keys[0]){
+                    labels.push(info_dict[chart][i][date]['date_inter']);
+                }
+                temp_dataset['data'].push(info_dict[chart][i][date][params[chart][0]]);
+            }
+            // alert(temp_dataset['data']);
+            dataset_list.push(temp_dataset);
+        }
+            // let item = document.createElement('div');
+            // item_container.append(item);
+
+            // if(chart=='rates') labels.push(`${rate_verb[info_dict[chart][i][params[chart][0]]-1]} (${info_dict[chart][i][params[chart][0]]-1}-${info_dict[chart][i][params[chart][0]]})`);
+            // else
+            //     labels.push(info_dict[chart][i][params[chart][0]]);
+            // values.push(info_dict[chart][i][params[chart][1]]);
+
+            // colors.push('rgb(62, 158, 62)');
+
+            // if(chart=='sales' || chart=='rating'){
+            //     let temp_avatar = new Image();
+            //     temp_avatar.src = '{{MEDIA_URL}}' + info_dict[chart][i]['image'];
+            //     avatars.push(temp_avatar);
+            // }
+            // alert(1);
+            // alert(labels);
+            //indexes.push(info_dict[chart][i]['id'])
+            // //alert(my_list[chart][watch]['sales']);
+            // let temp_avatar = new Image();
+            //temp_avatar.src = 'https://st.depositphotos.com/1001311/3432/i/950/depositphotos_34329113-stock-photo-golden-matt-letter-c-jewellery.jpg';
+            // temp_avatar.src = '{{MEDIA_URL}}' + my_list[chart][watch]['image'];
+            // avatars.push(temp_avatar);
+
+        // alert(labels);
+        const data = {
+          labels: labels,
+          datasets: dataset_list
+        };
+
+        // alert(dataset_list[0]);
+
+        let opt = {
+            scales: {
+                x: {
+                    grid: {display:false}
+                },
+                y: {
+                    ticks: {},
+                    grid: {}
+                }
+            },
+            plugins: {
+                datalabels: {
+                    font: {}
+                }
+            }
+        };
+
+        const config2 = {
+            type: 'line',
+            data: data,
+            options: {},
+            plugins: []
+        };
+
+        const ctx = document.getElementById('chart_'+chart);
+        const myChart = new Chart(
+        ctx,
+        config2);
+        // ctx.onclick = clickHandler;
+        if(chart){
+            //alert('define');
+            globalThis.myChart2 = myChart;
+        }
+        //alert(chart);
+        var butt = document.createElement("input");
+        butt.type = "button";
+        butt.value = params[chart][1];
+        let stat_val = chart;
+        butt.addEventListener('click', function(){changeChart(stat_val)});
+        document.getElementById("choice_panel").append(butt);
+
+        // alert(0);
+      }
+        // max_sale = Math.max.apply(null, sales); <----- CEIL_CHART
+        // min_sale = Math.min.apply(null, sales); <----- FLOOR_CHART
+        
+        // const barAvatar = {
+        //     id: 'barAvatar',
+        //     afterDatasetDraw(chart, args, options){
+        //         const {ctx, chartArea: {top, bottom, left, right, width, height},
+        //                scales: {x, y} } = chart;
+        //         ctx.save();
+
+        //         for (let i = 0; i < sales.length; i++) {
+        //           ctx.drawImage(avatars[i], x.getPixelForValue(i)-54/2, y.getPixelForValue(sales[i])-54-2, 54, 54);
+        //         }
+        //     }
+        // }
+        
+        
+
+        //alert(avatars[0]);
+        //alert(values.length);
+        
+        //alert(chart);
+        
+
+        //scales: {xAxis: {grid: {display:false}}}
+
+    }
+    
+    
+</script>
+{% endlanguage %}
+{% endblock %}

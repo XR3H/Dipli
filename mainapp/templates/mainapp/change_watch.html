@@ -1,0 +1,192 @@
+{% extends 'mainapp/base.html' %}
+
+{% load static %}
+
+{% load i18n %}
+
+{% block content %}
+{% language 'ru' %}
+<div class="container">
+    <h1 id="yes">Изменение информации товара</h1>
+    <p>Введите новые данные модели №{{watch_id}}</p>
+    <hr>
+        <form action="" method="post" enctype="multipart/form-data"> {% csrf_token %}
+        {% for field in form  %}
+            {% if field.name == 'model_cost' or field.name == 'waterproof_level' or field.name == 'mechanism_type' or field.name == 'glass_type' %}
+                <table width="100%">
+                    <tr><td width="27%">
+                        {{field.errors}}
+                        {{ field.label_tag }}</b>{{ field }}
+                    </td>
+            {% elif field.name == 'case_width' %}
+                <td width="27%">
+                    {{field.errors}}
+                    {{ field.label_tag }}</b>{{ field }}
+                </td>
+            {% elif field.name == 'case_height' or field.name == 'case_band' or field.name == 'strap_type' or field.name == 'current_amount' %}
+                <td width="27%">
+                    {{field.errors}}
+                    {{ field.label_tag }}</b>{{ field }}
+                </td></tr></table>
+            {% else %}
+                {{field.errors}}
+                {{ field.label_tag }}</b>{{ field }}
+            {% endif %}
+        {% endfor %}
+        </br></br><hr><br><input type="submit" value="Изменить">
+        </form>
+</div>
+
+<!-- <script>
+    var generated_csrf_token = "{{ csrf_token }}";
+
+    window.onload = function getOptionsGet() {
+        fetch("http://localhost:8000/Watches/get_brands/", {
+            method: "GET",
+            headers: {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "X-CSRFToken": generated_csrf_token
+            }
+        }).then(result => result.json())
+            .then(result => {
+                for (brand in result) {
+                    let option = document.createElement('option');
+                    option.innerHTML = result[brand]['brand_name'];
+                    option.value = result[brand]['id'];
+
+                    document.getElementById("brand").append(option);
+                }
+            });
+
+        fetch("http://localhost:8000/Watches/get_categories/", {
+            method: "GET",
+            headers: {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "X-CSRFToken": generated_csrf_token
+            }
+        }).then(result => result.json())
+            .then(result => {
+                for (category in result) {
+                    let option = document.createElement('option');
+                    option.innerHTML = result[category]['category_name'];
+                    option.value = result[category]['id'];
+
+                    document.getElementById("category").append(option);
+                }
+            });
+
+        fetch("http://localhost:8000/Watches/get_mechanisms/", {
+            method: "GET",
+            headers: {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "X-CSRFToken": generated_csrf_token
+            }
+        }).then(result => result.json())
+            .then(result => {
+                for (mechanism in result) {
+                    let option = document.createElement('option');
+                    option.innerHTML = result[mechanism]['mechanism_name'];
+                    option.value = result[mechanism]['id'];
+
+                    document.getElementById("mechanism_type").append(option);
+                }
+            });
+
+        fetch("http://localhost:8000/Watches/get_cases/", {
+            method: "GET",
+            headers: {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "X-CSRFToken": generated_csrf_token
+            }
+        }).then(result => result.json())
+            .then(result => {
+                for (case_band in result) {
+                    let option = document.createElement('option');
+                    option.innerHTML = result[case_band]['case_type_name'];
+                    option.value = result[case_band]['id'];
+
+                    document.getElementById("case_band").append(option);
+                }
+            });
+
+        fetch("http://localhost:8000/Watches/get_glasses/", {
+            method: "GET",
+            headers: {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "X-CSRFToken": generated_csrf_token
+            }
+        }).then(result => result.json())
+            .then(result => {
+                for (glass in result) {
+                    let option = document.createElement('option');
+                    option.innerHTML = result[glass]['glass_type_name'];
+                    option.value = result[glass]['id'];
+
+                    document.getElementById("glass_type").append(option);
+                }
+            });
+
+        fetch("http://localhost:8000/Watches/get_straps/", {
+            method: "GET",
+            headers: {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "X-CSRFToken": generated_csrf_token
+            }
+        }).then(result => result.json())
+            .then(result => {
+                for (strap in result) {
+                    let option = document.createElement('option');
+                    option.innerHTML = result[strap]['strap_type_name'];
+                    option.value = result[strap]['id'];
+
+                    document.getElementById("strap_type").append(option);
+                }
+            });
+
+    }
+
+    function addWatchPost(){
+        document.getElementById("yes").innerHTML = "Par changed.";
+        var name = document.getElementById("model_name").value;
+        var description = document.getElementById("model_description").value;
+        var cost = document.getElementById("model_cost").value;
+        var width = document.getElementById("case_width").value;
+        var height = document.getElementById("case_width").value;
+        var depth = document.getElementById("case_depth").value;
+        var watch_weight = document.getElementById("weight").value;
+        var watch_backlight = document.getElementById("backlight").checked;
+        var waterproof = document.getElementById("waterproof_level").value;
+        var watch_gender = document.getElementById("gender").value;
+        var amount = document.getElementById("current_amount").value;
+        var mechanism = document.getElementById("mechanism_type").value;
+        var band = document.getElementById("case_band").value;
+        var glass = document.getElementById("glass_type").value;
+        var strap = document.getElementById("strap_type").value;
+        var watch_category = document.getElementById("category").value;
+        var watch_brand = document.getElementById("brand").value;
+
+        fetch("http://localhost:8000/Watches/watch_write/", {
+          method: "POST",
+          body: JSON.stringify({model_name: name, model_description: description, model_cost: cost, case_width: width, case_height: height,
+            case_depth: depth, weight: watch_weight, backlight: watch_backlight, waterproof_level: waterproof, gender: watch_gender,
+            current_amount: amount, mechanism_type: mechanism, case_band: band, glass_type: glass, strap_type: strap, category: watch_category,
+            brand: watch_brand}),
+          headers: {
+              "Accept": "application/json",
+              "Content-Type": "application/json",
+              "X-CSRFToken": generated_csrf_token
+          }
+        }).then(result => result.json())
+          .then(result => {
+              document.getElementById("yes").innerHTML = JSON.stringify(result)
+          });
+    }
+</script> -->
+{% endlanguage %}
+{% endblock %}

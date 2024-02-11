@@ -1,0 +1,54 @@
+{% extends 'mainapp/base.html' %}
+
+
+{% load i18n %}
+
+
+{% block content %}
+    <h1 style="font-family: 'Montserrat';">Заказы:</h1>
+    <br></br>
+    {% language 'ru' %}
+    <div style="border: 4px double gray; width: 90%">
+    <table width="100%" class="table-main">
+    {% for order in orders %}
+
+        <tr>
+            <td width="10%"> {{order.res.table.name}} </td>
+            <td width="32%"> {{order.pref}} </td>
+            <td width="17%"> {{order.status.name}} </td>
+            <td width="30%">
+              <ul>
+              {% for meal in order.meals %}
+                  <li>{{meal.meal.name}}({{meal.amount}} шт.) по стоимости - {{meal.cost}} грн</li>
+              {% endfor %}
+              </ul>
+            </td>
+            <td width="11">
+              {% if order.status.id == 1 %}
+              <form action="/applyOrderRequest" method="POST">{% csrf_token %}
+                <button type="submit" style="height: 43px">Подтвердить заявку</button>
+                <textarea readonly name="order_id" style="display: none">{{order.id}}</textarea>
+              </form>
+              <form action="/cancelOrderRequest" method="POST">{% csrf_token %}
+                <button type="submit" style="height: 43px">Отклонить заявку</button>
+                <textarea readonly name="order_id" style="display: none">{{order.id}}</textarea>
+              </form>
+              {% elif order.status.id == 2 %}
+              <form action="/applyCookingStart" method="POST">{% csrf_token %}
+                <button type="submit" style="height: 43px">Начало готовки</button>
+                <textarea readonly name="order_id" style="display: none">{{order.id}}</textarea>
+              </form>
+              {% elif order.status.id == 4 %}
+              <form action="/applyCookingFinish" method="POST">{% csrf_token %}
+                <button type="submit" style="height: 43px">Готово к подаче</button>
+                <textarea readonly name="order_id" style="display: none">{{order.id}}</textarea>
+              </form>
+              {% endif %}
+            </td>
+        </tr>
+
+    {% endfor %}
+    {% endlanguage %}
+    </table>
+    </div>
+{% endblock %}

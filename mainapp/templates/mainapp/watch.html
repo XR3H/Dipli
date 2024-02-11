@@ -1,0 +1,686 @@
+{% extends 'mainapp/base.html' %}
+
+{% load static %}
+
+{% load i18n %}
+
+{% block content %}
+{% language 'ru' %}
+<div class="container_watch">
+    <h1 id="yes">Товар номер [{{watch.id}}]</h1>
+    <p>Страница товара</p>
+    <hr>
+    <table width="100%">
+        <tr>
+            <td width="44%" style="vertical-align: text-top;">
+                <h1 style="font-size: 45px">{{watch.model_name}}</h1>
+                
+                
+                <div class="rating_display">
+                    <input type="radio" id="rating-5" name="rating" value="5" onclick="return false;" />
+                    <input type="radio" id="rating-4" name="rating" value="4" onclick="return false;" />
+                    <input type="radio" id="rating-3" name="rating" value="3" onclick="return false;" />
+                    <input type="radio" id="rating-2" name="rating" value="2" onclick="return false;" />
+                    <input type="radio" id="rating-1" name="rating" value="1" onclick="return false;" />
+                    <input type="radio" id="rating-0" name="rating" value="0" onclick="return false;" />
+                    <input type="radio" id="rating-5" name="rating" value="5" onclick="return false;" />
+                    <input type="radio" id="rating-4" name="rating" value="4" onclick="return false;" />
+                    <input type="radio" id="rating-3" name="rating" value="3" onclick="return false;" />
+                    <input type="radio" id="rating-2" name="rating" value="2" onclick="return false;" />
+                </div>
+                <hr width="80%" align="left">
+                
+                <h3><strong>Цена:</strong> {{watch.model_cost}} грн</h3>
+                <h4><strong>На складе:</strong> {{watch.current_amount}}</h4><br>
+                <h4><strong>Бренд:</strong> {{watch.brand.brand_name}}</h4>
+                <h4><strong>Категория:</strong> {{watch.category.category_name}}</h4>
+                <h4><strong>Пол:</strong> {{watch.gender.gender_name}}</h4>
+                <!-- <h4><strong>Гарантия:</strong> {% if watch.warranty == None %} Нет {% else %}{{watch.warranty}} {% if watch.warranty > 2 and watch.warranty < 4 %} года {% else %}лет {% endif %}{% endif %}</h4> -->
+                <br>
+                <h3><strong>Характеристики:</strong></h3>
+                <h4><strong>Ширина корпуса:</strong> {{watch.case_width}}</h4>
+                <h4><strong>Высота корпуса:</strong> {{watch.case_height}}</h4>
+                <h4><strong>Водонепроницаемость:</strong> {{watch.waterproof_level}} м</h4>
+                <h4><strong>Вес:</strong> {{watch.weight}}</h4>
+                <br><h4><strong>Тип механизма:</strong> {{watch.mechanism_type.mechanism_name}}</h4>
+                <h4><strong>Тип корпуса:</strong> {{watch.case_band.case_type_name}}</h4>
+                <h4><strong>Тип стекла:</strong> {{watch.glass_type.glass_type_name}}</h4>
+                <h4><strong>Тип браслета:</strong> {{watch.strap_type.strap_type_name}}</h4>
+                <h4><strong>Тип индикации:</strong> {{watch.indication_type.indication_type_name}}</h4>
+                <!-- <h4><strong>Подсветка:</strong> {{watch.backlight|yesno:'Есть,Нет'}}</h4> -->
+            </td>
+            <td width="56%">
+                <div class="center_img">
+                <img border="1" class="img-thumbnail-watch" src="{{MEDIA_URL}}{{watch.image}}" alt="{{watch.image}}"></img>
+                </div>
+                {% if user.is_authenticated%}
+                    {% if not user.is_staff %}
+                        {% if in_cart > 0 %}
+                        <h3><strong>В корзине:</strong>
+                        <form action="/cha/{{watch.id}}/" method="POST"> {% csrf_token %}
+                            {{form.as_p}}
+                            <input type="submit" name="{{watch.id}}" value="Изменить">
+                        </form>
+                        {% else %}
+                        <h3><strong>Добавить в корзину:</strong>
+                        <form action="/add/{{watch.id}}/" method="POST"> {% csrf_token %}
+                            {{form.as_p}}
+                            <input type="submit" name="{{watch.id}}" value="Добавить">
+                        </form>
+                        {% endif %}
+                    {% else %}
+                        </br>
+                        <input type="button" value="Изменить данные" onclick="window.location.href='/change_watch/{{watch.id}}'">
+                        </br>
+                    {% endif %}
+                {% endif %}
+                <br/>
+                <div class="drop_block close">
+                    <input class="drop_heading" type="button" value="Доп. характеристики" />
+                    <div class="drop_content">
+                      <ul>
+                        {% for feature in watch.split_features_list %}
+                            <li><h4><strong>{{feature}}</strong></h4></li>
+                        {% endfor %}
+                      </ul>
+                    </div>
+                  </div>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <h3><strong>Описание:</strong></h3>
+                <h4>{{watch.model_description}}</h4>
+            </td>
+            <td></td>
+        </tr>
+        <tr>
+            <td width="56%">
+                {% if user.is_authenticated and not user.is_staff %}
+                    <h3><strong>Ваша оценка{% if user_rating == None %} (нет){% endif %}:</strong></h3>
+                    <div class="rating">
+                        <input type="radio" id="rating-0" name="rate" value="10" />
+                        <input type="radio" id="rating-1" name="rate" value="9" />
+                        <input type="radio" id="rating-2" name="rate" value="8" />
+                        <input type="radio" id="rating-3" name="rate" value="7" />
+                        <input type="radio" id="rating-4" name="rate" value="6" />
+                        <input type="radio" id="rating-5" name="rate" value="5" />
+                        <input type="radio" id="rating-6" name="rate" value="4" />
+                        <input type="radio" id="rating-7" name="rate" value="3" />
+                        <input type="radio" id="rating-8" name="rate" value="2" />
+                        <input type="radio" id="rating-9" name="rate" value="1" />
+                    </div>
+                    <br>
+                    <form action="/rate/{{watch.id}}/" method="POST"> {% csrf_token %}
+                        {% for field in rate_form %}
+                            {{field.as_hidden}}
+                        {% endfor %}
+                        <input style="width: 50%; height: 40px;" type="submit" name="{{watch.id}}" value="Оценить">
+                    </form>
+                {% endif %}
+            </td>
+            <td width="44%"></td>
+        </tr>
+    </table>
+    <br>
+    <br>
+    <hr/>
+    <br>
+    <h2>Дополнительная информация</h2>
+    <div id="recomend_block" width="100%">
+        <div id="choice_panel"></div>
+        <!-- <input id="rating" type="button" value="Топ по рейтингу" onclick="changeChart(this.id)"/>
+        <input id="list" style="border-left: none;" type="button" value="В виде графика" onclick="changeView(this.id)"/> -->
+        <div class="list-group-item list-group-item-action gap-3 py-3" id="watch_stat_info">
+            <!-- <canvas id="chart_cost_categ"></canvas>
+            <canvas id="chart_rates"></canvas> -->
+            <!-- style="display: none;" -->
+                
+        </div>
+    </div>
+    {% if user.is_authenticated and not user.is_staff %}
+    <!-- <h1>Рекомендации</h1> -->
+    <div class="list-group-item list-group-item-action gap-3 py-3" id="watch_recommend">
+        <div id="list_content">
+            <div class="list_wrapper" id="wrapper_rating">
+                <input class="arrow-left" type="button" value="<"/>
+                <div class="stat_item" id="list_rating"></div>    
+                <input class="arrow-right" type="button" value=">"/>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    </br>
+    </br>
+    <!-- <div id="watch_recommend" width="100%">
+        <div id="list_content">
+            <div class="list_wrapper" id="wrapper_rating">
+                <input class="arrow-left" type="button" value="<"/>
+                <div class="stat_item" id="list_rating"></div>    
+                <input class="arrow-right" type="button" value=">"/>
+            </div>
+        </div>
+    </div> -->
+</div>
+    <!-- <table width="100%">
+        <tr>
+            <td width="56%"><img border="1" style="display:block;" height = "640" width="640" src="{{MEDIA_URL}}{{watch.image}}" alt="{{watch.image}}"></img></td>
+            <td width="44%">
+                <h1 style="font-size: 45px">{{watch.model_name}}</h1>
+                <hr>
+                <h3><strong>Цена:</strong> {{watch.model_cost}} грн</h3>
+                <h4><strong>На складе:</strong> {{watch.current_amount}}</h4><br>
+                <h4><strong>Бренд:</strong> {{watch.brand_name}}</h4>
+                <h4><strong>Категория:</strong> {{watch.category_name}}</h4>
+                <h4><strong>Гарантия:</strong> {{watch.weight}} лет</h4>
+                <br>
+                <h3><strong>Описание:</strong></h3>
+                <h4>{{watch.model_description}}</h4>
+                <br>
+                <h3><strong>Характеристики:</strong></h3>
+                <h4><strong>Ширина корпуса:</strong> {{watch.case_width}}</h4>
+                <h4><strong>Высота корпуса:</strong> {{watch.case_depth}}</h4>
+                <h4><strong>Водонепроницаемость:</strong> {{watch.waterproof_level}} м</h4>
+                <h4><strong>Вес:</strong> {{watch.weight}}</h4>
+                <br><h4><strong>Тип механизма:</strong> {{watch.mechanism_name}}</h4>
+                <h4><strong>Тип корпуса:</strong> {{watch.case_type_name}}</h4>
+                <h4><strong>Тип стекла:</strong> {{watch.glass_type_name}}</h4>
+                <h4><strong>Тип браслета:</strong> {{watch.strap_type_name}}</h4>
+                <h4><strong>Подсветка:</strong> {{watch.backlight|yesno:'Есть,Нет'}}</h4>
+            </td>
+        </tr>
+        <tr>
+            <td width="56%">1</td>
+            <td width="44%">1</td>
+        </tr>
+    </table> -->
+    
+    
+</div>
+<script src="/static/js/jquery-3.6.0.js"></script>
+<script>
+    // alert(user);
+    var params = {
+        'cost_categ': ['category', 'watch_number', 'В ценовой категории'],
+        'rates': ['val', 'count', 'Кол-во оценок'],
+        'sales': ['model_name', 'sales', 'В топе по продажам'],
+        'rating': ['model_name', 'sales', 'В топе по рейтингу'],
+        'top_local': ['locality_name', 'place', 'Продажи по городам']
+    };
+    var rate_verb = ['Ужасно', 'Неприемлимо', 'Нормально', 'Хорошо', 'Отлично']
+
+    $('.arrow-left').each(function(){
+        $(this).click(function(){
+            // alert(1);
+            var line = $(this).parent().children('div.stat_item');
+            var current = line.children().last();
+            current.insertBefore(line.children().first());
+        });
+    })
+    $('.arrow-right').each(function(){
+        $(this).click(function(){
+            // alert(1);
+            var line = $(this).parent().children('div.stat_item');
+            var current = line.children().first();
+            current.insertAfter(line.children().last());
+        });
+    })
+
+    function changeChart(type){
+        // alert(type);
+        var selected_chart = document.getElementById('chart_' + type);
+        if(selected_chart.style.display=='none'){
+            var an_charts = document.getElementById("watch_stat_info").querySelectorAll("canvas");
+            an_charts.forEach(function (chart) {
+                chart.style.display='none';
+            });
+            selected_chart.style.display='block';
+        }
+    }
+
+    window.onload = function getInfo() {
+      var info_dict = {{ info|safe }};
+      var is_first_flag = true;
+      for (chart in info_dict) {
+        //alert(chart);
+        // alert(0);
+        var item_container = document.getElementById("watch_stat_info");
+        let chart_canvas = document.createElement('canvas');
+        chart_canvas.id = "chart_" + chart;
+        if(is_first_flag) is_first_flag = false;
+        else chart_canvas.style.display = "none";
+        item_container.append(chart_canvas);
+        //var item_container = document.getElementById("list_"+chart);
+        //alert(chart)
+        let labels = [];
+        let values = [];
+        let colors = [];
+        
+        let avatars = [];
+        //let indexes = [];
+        for(i in info_dict[chart]){
+            // let item = document.createElement('div');
+            // item_container.append(item);
+
+            if(chart=='rates') labels.push(`${rate_verb[info_dict[chart][i][params[chart][0]]-1]} (${info_dict[chart][i][params[chart][0]]-1}-${info_dict[chart][i][params[chart][0]]})`);
+            else
+                labels.push(info_dict[chart][i][params[chart][0]]);
+            values.push(info_dict[chart][i][params[chart][1]]);
+            if(chart=='cost_categ') var range = labels[i].split(' - ');
+            if(chart=='cost_categ' && "{{watch.model_cost}}" >= range[0] && "{{watch.model_cost}}" <= range[1] || (chart=='sales'||chart=='rating') && "{{watch.id}}" == info_dict[chart][i]['id'])
+                colors.push('rgb(77, 210, 77)');
+            else colors.push('rgb(62, 158, 62)');
+
+            if(chart=='sales' || chart=='rating'){
+                let temp_avatar = new Image();
+                temp_avatar.src = '{{MEDIA_URL}}' + info_dict[chart][i]['image'];
+                avatars.push(temp_avatar);
+            }
+            // alert(1);
+            // alert(labels);
+            //indexes.push(info_dict[chart][i]['id'])
+            // //alert(my_list[chart][watch]['sales']);
+            // let temp_avatar = new Image();
+            //temp_avatar.src = 'https://st.depositphotos.com/1001311/3432/i/950/depositphotos_34329113-stock-photo-golden-matt-letter-c-jewellery.jpg';
+            // temp_avatar.src = '{{MEDIA_URL}}' + my_list[chart][watch]['image'];
+            // avatars.push(temp_avatar);
+        }
+        // max_sale = Math.max.apply(null, sales); <----- CEIL_CHART
+        // min_sale = Math.min.apply(null, sales); <----- FLOOR_CHART
+        
+      
+        const data = {
+          labels: labels,
+          datasets: [{
+            label: params[chart][2],
+            backgroundColor: colors,
+            borderColor: 'rgb(0, 0, 0)',
+            data: values,
+          }]
+        };
+        // alert(data['datasets']);
+        // const barAvatar = {
+        //     id: 'barAvatar',
+        //     afterDatasetDraw(chart, args, options){
+        //         const {ctx, chartArea: {top, bottom, left, right, width, height},
+        //                scales: {x, y} } = chart;
+        //         ctx.save();
+
+        //         for (let i = 0; i < sales.length; i++) {
+        //           ctx.drawImage(avatars[i], x.getPixelForValue(i)-54/2, y.getPixelForValue(sales[i])-54-2, 54, 54);
+        //         }
+        //     }
+        // }
+        
+        hor_opt = {
+            indexAxis: 'y',
+            barPercentage: 0.6,
+            scales: {
+                xAxis: {
+                    grid: {
+                        display:true
+                    },
+                    ticks: {
+                        display: true,
+                        fontColor: "#fff",
+                        beginAtZero: true,
+                        stepSize: 1,
+                        max: 5
+                    }
+                },
+                yAxis: {
+                    
+                    grid: {
+                        display:false
+                    }   
+                }
+            },
+            layout: {
+                padding: {
+                    right: 50,
+                }
+            },
+            responsive: true,
+            plugins: {
+                legend: {
+                    display: false,
+                },
+                datalabels: {
+                    align: 'end',
+                    offset: 6,
+                    anchor: 'end',        
+                    // backgroundColor: function(context) {
+                    //   return context.dataset.backgroundColor;
+                    // },
+                    padding: {
+                        left: 5,
+                        right: 5,
+                    },
+                    backgroundColor: "#e1e1e1",
+                    color: 'black',
+
+                    font: {
+                        weight: 'bold',
+                        size: 30,
+                    },
+                    
+                    borderRadius: 4,
+                    formatter: Math.round
+                },
+                title: {
+                    display: true,
+                    text: params[chart][2]
+                }
+            }
+            //   scales: {
+            //     y: chart=='sales'?{beginAtZero: true, max:  max_sale + max_sale%2+ 2}: {beginAtZero: true, max:  Math.ceil(max_sale), min: (Math.floor((min_sale-0.1)*10))/10}
+            //   }
+        };
+
+        //alert(avatars[0]);
+        //alert(values.length);
+        const barAvatar = {
+            id: 'barAvatar',
+            afterDatasetDraw(chart, args, options){
+                const {ctx, chartArea: {top, bottom, left, right, width, height},
+                       scales: {x, y} } = chart;
+                ctx.save();
+
+                for (let i = 0; i < values.length; i++) {
+                    //alert(avatars[i]);
+                    //alert(x.getPixelForValue(i)-54/2);
+                    //alert(ctx.drawImage);
+                    ctx.drawImage(avatars[i], x.getPixelForValue(i)-54/2, y.getPixelForValue(values[i])-54-2, 54, 54);
+                }
+            }
+        };
+        
+        let plugin = [];
+        if(chart=='rates' || chart=='top_local'){
+            plugin.push(ChartDataLabels);
+        }
+        else if(chart=='sales' || chart=='rating'){
+            plugin.push(barAvatar);
+        }
+        //alert(chart);
+        
+        
+        opt = chart=='rates'? hor_opt: {
+            scales: {
+                x: {
+                    grid: {display:false}
+                },
+                y: {
+                    ticks: {},
+                    grid: {}
+                }
+            },
+            plugins: {
+                datalabels: {
+                    font: {}
+                }
+            }
+        };
+
+        max_val = Math.max.apply(null, values);
+        min_val = Math.min.apply(null, values);
+
+        if(chart=='sales'){
+            opt['scales']['y']['max'] = max_val + max_val%2+ 2;
+        }
+        else if(chart=='rating'){
+            // alert((Math.ceil((max_val+0.2)*10)/10));
+            // alert((Math.ceil((max_val+0.2)*10)%2)/10);
+            opt['scales']['y']['max'] = (Math.ceil((max_val+0.2)*10)/10) + (Math.ceil((max_val+0.2)*10)%2)/10;
+            opt['scales']['y']['min'] = (min_val-0.2) - (min_val-0.2)%0.2;
+            opt['scales']['y']['ticks']['stepSize'] = 0.2;
+            // opt['scales']['y']['min'] = (Math.floor((min_val-0.1)*10))/10;
+        }
+        else if(chart=='top_local'){
+            opt['scales']['y']['ticks']['display'] = false;
+            opt['scales']['y']['grid']['display'] = false;
+            opt['plugins']['datalabels']['align'] = 'center';
+            opt['plugins']['datalabels']['anchor'] = 'center';
+            opt['plugins']['datalabels']['font']['weight'] = 'bold';
+            opt['plugins']['datalabels']['font']['size'] = 30;
+            opt['plugins']['datalabels']['color'] = 'white';
+            opt['plugins']['datalabels']['textShadowBlur'] = 10;
+            opt['plugins']['datalabels']['textShadowColor'] = 'black';
+            opt['plugins']['datalabels']['formatter'] = function(value, context) {
+                let data = context.chart.data.datasets[0].data;
+                return data.length - data[context.dataIndex] + 1;
+            };
+        }
+        
+
+        //scales: {xAxis: {grid: {display:false}}}
+        const config2 = {
+        type: 'bar',
+        data: data,
+        options: opt,
+        plugins: plugin
+        };
+
+        const ctx = document.getElementById('chart_'+chart);
+        const myChart = new Chart(
+        ctx,
+        config2);
+        // ctx.onclick = clickHandler;
+        if(chart){
+            //alert('define');
+            globalThis.myChart2 = myChart;
+        }
+        //alert(chart);
+        var butt = document.createElement("input");
+        butt.type = "button";
+        butt.value = params[chart][2];
+        let stat_val = chart;
+        butt.addEventListener('click', function(){changeChart(stat_val)});
+        document.getElementById("choice_panel").append(butt);
+
+        //alert(0);
+      }
+        if('{{user}}' != 'AnonymousUser' && '{{user.is_staff}}' == 'False' ){
+            // alert(1);
+        //pipin
+            var watches = {{ recommends|safe }};
+            var item_container = document.getElementById("list_rating");
+            for(watch in watches){
+                let item = document.createElement('div');
+                item.innerHTML = `<img class="img-thumbnail-info" height="200" width="200" src="{{MEDIA_URL}}${watches[watch]['image']}" alt="${watches[watch]['image']}" />` +
+                            `<h4>${watches[watch]['model_name']}</h4>`+
+                            `<p><h4>Бренд: ${watches[watch]['brand_name']}</h4></p>`;
+                item_container.append(item);
+            }
+        }
+    }
+
+    //alert(parseInt(parseFloat("{{user_rating}}".replace(',', '.'))*2));
+    var drop_heading = document.getElementsByClassName('drop_heading');
+    var drop_block = document.getElementsByClassName('drop_block');
+    for (i = 0; i < drop_heading.length; i++) {
+        drop_heading[i].addEventListener('click', toggle_block, false);
+    }
+    function toggle_block() {
+        var curr_class = this.parentNode.className;
+        if (curr_class == 'drop_block close') {
+            this.parentNode.className = 'drop_block open';
+        }
+        else {
+            this.parentNode.className = 'drop_block close';
+        }
+    }
+
+    var rate_radios = document.getElementsByName('rate');
+    for (i = 0; i < rate_radios.length; i++) {
+        rate_radios[i].addEventListener('click', update_form, false);
+
+    }
+    document.getElementsByName('rating')[9-(parseInt(parseFloat("{{watch.rating}}".replace(',', '.'))*2)-1)].checked = "checked";
+    var initial = "{{user_rating}}";
+    if(initial==null || initial=='None'){
+        rate_radios[9-(parseInt(parseFloat("{{watch.rating}}".replace(',', '.'))*2)-1)].checked = "checked";
+    }
+    else{
+        rate_radios[9-parseInt((parseFloat(initial.replace(',', '.'))*2)-1)].checked = "checked";
+    }
+    function update_form(i) {
+        var new_value = (this.value);
+        var form_input = document.getElementById('id_value');
+        form_input.value = new_value;
+        // alert(form_input.value);
+    }
+</script>
+<!-- <script>
+    var generated_csrf_token = "{{ csrf_token }}";
+
+    window.onload = function getOptionsGet() {
+        fetch("http://localhost:8000/Watches/get_brands/", {
+            method: "GET",
+            headers: {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "X-CSRFToken": generated_csrf_token
+            }
+        }).then(result => result.json())
+            .then(result => {
+                for (brand in result) {
+                    let option = document.createElement('option');
+                    option.innerHTML = result[brand]['brand_name'];
+                    option.value = result[brand]['id'];
+
+                    document.getElementById("brand").append(option);
+                }
+            });
+
+        fetch("http://localhost:8000/Watches/get_categories/", {
+            method: "GET",
+            headers: {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "X-CSRFToken": generated_csrf_token
+            }
+        }).then(result => result.json())
+            .then(result => {
+                for (category in result) {
+                    let option = document.createElement('option');
+                    option.innerHTML = result[category]['category_name'];
+                    option.value = result[category]['id'];
+
+                    document.getElementById("category").append(option);
+                }
+            });
+
+        fetch("http://localhost:8000/Watches/get_mechanisms/", {
+            method: "GET",
+            headers: {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "X-CSRFToken": generated_csrf_token
+            }
+        }).then(result => result.json())
+            .then(result => {
+                for (mechanism in result) {
+                    let option = document.createElement('option');
+                    option.innerHTML = result[mechanism]['mechanism_name'];
+                    option.value = result[mechanism]['id'];
+
+                    document.getElementById("mechanism_type").append(option);
+                }
+            });
+
+        fetch("http://localhost:8000/Watches/get_cases/", {
+            method: "GET",
+            headers: {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "X-CSRFToken": generated_csrf_token
+            }
+        }).then(result => result.json())
+            .then(result => {
+                for (case_band in result) {
+                    let option = document.createElement('option');
+                    option.innerHTML = result[case_band]['case_type_name'];
+                    option.value = result[case_band]['id'];
+
+                    document.getElementById("case_band").append(option);
+                }
+            });
+
+        fetch("http://localhost:8000/Watches/get_glasses/", {
+            method: "GET",
+            headers: {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "X-CSRFToken": generated_csrf_token
+            }
+        }).then(result => result.json())
+            .then(result => {
+                for (glass in result) {
+                    let option = document.createElement('option');
+                    option.innerHTML = result[glass]['glass_type_name'];
+                    option.value = result[glass]['id'];
+
+                    document.getElementById("glass_type").append(option);
+                }
+            });
+
+        fetch("http://localhost:8000/Watches/get_straps/", {
+            method: "GET",
+            headers: {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "X-CSRFToken": generated_csrf_token
+            }
+        }).then(result => result.json())
+            .then(result => {
+                for (strap in result) {
+                    let option = document.createElement('option');
+                    option.innerHTML = result[strap]['strap_type_name'];
+                    option.value = result[strap]['id'];
+
+                    document.getElementById("strap_type").append(option);
+                }
+            });
+
+    }
+
+    function addWatchPost(){
+        document.getElementById("yes").innerHTML = "Par changed.";
+        var name = document.getElementById("model_name").value;
+        var description = document.getElementById("model_description").value;
+        var cost = document.getElementById("model_cost").value;
+        var width = document.getElementById("case_width").value;
+        var height = document.getElementById("case_width").value;
+        var depth = document.getElementById("case_depth").value;
+        var watch_weight = document.getElementById("weight").value;
+        var watch_backlight = document.getElementById("backlight").checked;
+        var waterproof = document.getElementById("waterproof_level").value;
+        var watch_gender = document.getElementById("gender").value;
+        var amount = document.getElementById("current_amount").value;
+        var mechanism = document.getElementById("mechanism_type").value;
+        var band = document.getElementById("case_band").value;
+        var glass = document.getElementById("glass_type").value;
+        var strap = document.getElementById("strap_type").value;
+        var watch_category = document.getElementById("category").value;
+        var watch_brand = document.getElementById("brand").value;
+
+        fetch("http://localhost:8000/Watches/watch_write/", {
+          method: "POST",
+          body: JSON.stringify({model_name: name, model_description: description, model_cost: cost, case_width: width, case_height: height,
+            case_depth: depth, weight: watch_weight, backlight: watch_backlight, waterproof_level: waterproof, gender: watch_gender,
+            current_amount: amount, mechanism_type: mechanism, case_band: band, glass_type: glass, strap_type: strap, category: watch_category,
+            brand: watch_brand}),
+          headers: {
+              "Accept": "application/json",
+              "Content-Type": "application/json",
+              "X-CSRFToken": generated_csrf_token
+          }
+        }).then(result => result.json())
+          .then(result => {
+              document.getElementById("yes").innerHTML = JSON.stringify(result)
+          });
+    }
+</script> -->
+{% endlanguage %}
+{% endblock %}

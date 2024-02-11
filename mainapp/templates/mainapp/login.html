@@ -1,0 +1,26 @@
+{% extends 'mainapp/base.html' %}
+
+{% load static %}
+
+{% load i18n %}
+
+{% block content %}
+{% language 'ru' %}
+<div class="container">
+<h1 id="yes">Вход</h1>
+	<p>Введите данные пользователя</p>
+	<hr>
+		<form action="" method="post"> {% csrf_token %}
+		    <div class="  register-top-grid">
+			      <div>
+					      {{ form.as_p }}
+						  <hr>
+						  
+					      <br><input type="submit" value="Войти">
+			      </div>
+			  </div>
+		</form>
+		<div class="clearfix"> </div>
+</div>
+{% endlanguage %}
+{% endblock %}
